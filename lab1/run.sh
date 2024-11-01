@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export DIR_WITH_FRAMS_LIBRARY=/Users/filipmarciniak/studia/st2sem2/amib/Framsticks50
-cd ../framspy
+cd ../framspy || exit
 
 # Wartości M siły mutacji
 M_values=(0 005 010 020 030 040 050)

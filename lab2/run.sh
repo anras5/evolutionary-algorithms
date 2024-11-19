@@ -24,8 +24,8 @@ run_algorithm() {
     uv run FramsticksEvolution.py \
         -path "$DIR_WITH_FRAMS_LIBRARY" \
         -sim "eval-allcriteria.sim;deterministic.sim;sample-period-2.sim;only-body.sim" \
-        -opt vertpos -max_numparts 30 -max_numgenochars 50 -genformat "$G" \
-        -popsize 60 -generations 130 -hof_size 1 \
+        -opt vertpos -max_numparts 30 -genformat "$G" \
+        -popsize 100 -generations 130 -hof_size 1 \
         -hof_savefile "lab2/${R_fitness}/f$G/HoF/$iteration.gen" \
         -deap_logfile "lab2/${R_fitness}/f$G/Deap/$iteration.csv" \
         -function "$R_fitness"

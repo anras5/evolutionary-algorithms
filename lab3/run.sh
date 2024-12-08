@@ -4,13 +4,14 @@ export DIR_WITH_FRAMS_LIBRARY=/Users/filipmarciniak/studia/st2sem2/amib/Framstic
 cd ../framspy || exit
 
 # oznaczenia różnych plików z prawdopodobieństwem
-P_values=(0 1)
+P_values=(0 1 2 3)
 
 
 # funkcja uruchamiająca algorytm genetyczny dla danego pliku z prawdopodobieństwem
 run_algorithm() {
     iteration="$1"
     P="$2"
+    change_mutation="$3"
 
     start_time=$(date +%s)
 
@@ -21,9 +22,10 @@ run_algorithm() {
         -opt velocity -max_numparts 15 -max_numjoints 30 \
         -max_numneurons 20 -max_numconnections 30 \
         -genformat 1 -pxov 0 \
-        -popsize 50 -generations 100 -hof_size 1 \
+        -popsize 80 -generations 140 -hof_size 1 \
         -hof_savefile "lab3/$P/HoF/$iteration.gen" \
-        -deap_logfile "lab3/$P/Deap/$iteration.csv"
+        -deap_logfile "lab3/$P/Deap/$iteration.csv" \
+        -change_mutation "$change_mutation"
 
     # Wypisanie czasu wykonania algorytmu do times.txt
     end_time=$(date +%s)
@@ -41,7 +43,8 @@ for P in "${P_values[@]}"; do
     echo "N,time" >> "lab3/$P/times.txt"
     # Uruchomienie algorytmu dla każdej wartości P przy użyciu parallel
     iterations=(1 2 3 4 5 6 7 8 9 10)
-    parallel run_algorithm ::: "${iterations[@]}" ::: "$P"
+    # jeśli P=3 to zmieniamy mutację
+    parallel run_algorithm ::: "${iterations[@]}" ::: "$P" ::: "$((P == 3))"
 
     echo "----------------------------------------------------------------------"
     echo "Finished for $P"

@@ -86,14 +86,14 @@ if __name__ == '__main__':
         type=int,
         required=True,
         default=10,
-        description="Number of iterations from the main evolution (ran with run.sh)."
+        help="Number of iterations from the main evolution (ran with run.sh)."
     )
     parser.add_argument(
         "--generations",
         type=int,
         required=True,
         default=130,
-        description="Number of generations in each iteration from the main evolution (ran with run.sh)."
+        help="Number of generations in each iteration from the main evolution (ran with run.sh)."
     )
     args = parser.parse_args()
     FramsticksLib.DETERMINISTIC = False

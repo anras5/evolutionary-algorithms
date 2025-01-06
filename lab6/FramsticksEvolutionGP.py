@@ -74,25 +74,29 @@ def genotype_within_constraint(genotype, dict_criteria_values, criterion_name, c
 
 def frams_evaluate(frams_lib, pset, individual):
     FITNESS_CRITERIA_INFEASIBLE_SOLUTION = [FITNESS_VALUE_INFEASIBLE_SOLUTION] * len(OPTIMIZATION_CRITERIA)
-    genotype = gp.compile(individual, pset)
-    data = frams_lib.evaluate([genotype])
-    # print("Evaluated '%s'" % genotype, 'evaluation is:', data)
-    valid = True
     try:
-        first_genotype_data = data[0]
-        evaluation_data = first_genotype_data["evaluations"]
-        default_evaluation_data = evaluation_data[""]
-        fitness = [default_evaluation_data[crit] for crit in OPTIMIZATION_CRITERIA]
-
-        # smoothing function for negative fitness values
-        if fitness[0] < 0:
-            fitness = [-1 / default_evaluation_data["numparts"]]
-    except (KeyError, TypeError) as e:
+        genotype = gp.compile(individual, pset)
+    except SyntaxError as e:
         valid = False
-        print(
-            'Problem "%s" so could not evaluate genotype "%s", hence assigned it a special ("infeasible solution") fitness value: %s'
-            % (str(e), genotype, FITNESS_CRITERIA_INFEASIBLE_SOLUTION)
-        )
+    else:
+        data = frams_lib.evaluate([genotype])
+        # print("Evaluated '%s'" % genotype, 'evaluation is:', data)
+        valid = True
+        try:
+            first_genotype_data = data[0]
+            evaluation_data = first_genotype_data["evaluations"]
+            default_evaluation_data = evaluation_data[""]
+            fitness = [default_evaluation_data[crit] for crit in OPTIMIZATION_CRITERIA]
+
+            # smoothing function for negative fitness values
+            if fitness[0] < 0:
+                fitness = [-1 / default_evaluation_data["numparts"]]
+        except (KeyError, TypeError) as e:
+            valid = False
+            print(
+                'Problem "%s" so could not evaluate genotype "%s", hence assigned it a special ("infeasible solution") fitness value: %s'
+                % (str(e), genotype, FITNESS_CRITERIA_INFEASIBLE_SOLUTION)
+            )
     if valid:
         default_evaluation_data["numgenocharacters"] = len(genotype)  # for consistent constraint checking below
         valid &= genotype_within_constraint(genotype, default_evaluation_data, "numparts", parsed_args.max_numparts)
@@ -145,7 +149,7 @@ def prepareToolbox(frams_lib, OPTIMIZATION_CRITERIA, tournament_size, pset):
     creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
     toolbox = base.Toolbox()
-    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=12)
+    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=2, max_=10)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     toolbox.register("compile", gp.compile, pset=pset)

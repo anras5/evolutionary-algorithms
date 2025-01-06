@@ -27,7 +27,13 @@ def gp_parenthesis(genotype):
 
 
 def gp_comma(genotype1, genotype2):
-    return "(" + genotype1 + "," + genotype2 + ")" if genotype1 != "" and genotype2 != "" else ""
+    if genotype1 != "" and genotype2 != "":
+        return f"({genotype1},{genotype2})"
+    if genotype1 != "":
+        return f"({genotype1},)"
+    if genotype2 != "":
+        return f"(,{genotype2})"
+    return ""
 
 
 def gp_modifier(modifier):

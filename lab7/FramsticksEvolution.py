@@ -124,24 +124,18 @@ def select_feasible(individuals):
 
 
 def selTournament_only_feasible(individuals, k, tournsize):
-    print(f"{len(individuals)=}")
-
-    selected_individuals = tools.selTournament(select_feasible(individuals), k, tournsize=tournsize)
-
-    print(f"{len(selected_individuals)=}")
-
-    return selected_individuals
+    return tools.selTournament(select_feasible(individuals), k, tournsize=tournsize)
 
 
 def selNSGA2_only_feasible(individuals, k, save, iteration=None):
-
     selected_individuals = tools.selNSGA2(
         select_feasible(individuals), k
     )  # this method (unfortunately) decreases population size permanently each time an infeasible solution is removed
 
     # save genotypes
     if save:
-        save_genotypes(f"lab7/init_start/{iteration}.gen", selected_individuals)
+        genotypes_save_dir = parsed_args.genotypes_save_dir
+        save_genotypes(f"{genotypes_save_dir}/{iteration}.gen", selected_individuals)
     return selected_individuals
 
 
@@ -217,6 +211,9 @@ def parseArguments():
     )
 
     parser.add_argument("-deap_logfile", type=str, default=None, help="If set, DEAP will log to this file.")
+
+    parser.add_argument("-genotypes_save_dir", type=str, default=None,
+                        help="Directory to save genotypes in each iteration.")
 
     return parser.parse_args()
 

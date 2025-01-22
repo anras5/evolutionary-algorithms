@@ -10,7 +10,7 @@ wheels/
 .venv
 
 .ipynb_checkpoints/
-Framsticks50/
+Framsticks*/
 framspy
 .DS_STORE
 .idea/

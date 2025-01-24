@@ -135,11 +135,46 @@ def selNSGA2_only_feasible(individuals, k, save, iteration=None):
     # save genotypes
     if save:
         genotypes_save_dir = parsed_args.genotypes_save_dir
-        save_genotypes(f"{genotypes_save_dir}/{iteration}.gen", selected_individuals)
+        if parsed_args.load_file:
+            iteration = int(parsed_args.load_file.split("/")[-1].split(".")[0]) + iteration
+            save_genotypes(f"{genotypes_save_dir}/{iteration}.gen", selected_individuals)
+        else:
+            save_genotypes(f"{genotypes_save_dir}/{iteration}.gen", selected_individuals)
     return selected_individuals
 
 
-def prepareToolbox(frams_lib, tournament_size, genetic_format, initial_genotype):
+def init_population(pcls, ind_init, filename):
+    individuals = []
+    with open(filename, "r") as f:
+        ind = None
+        genotype_line = False
+        for line in f:
+            # start of a new individual
+            if line.startswith("org:"):
+                ind = ""
+
+            # start of genotype
+            if line.startswith("genotype:"):
+                genotype = line.split(":")[1].strip()
+                # ~ starts multiline genotype for f0 and fH
+                if genotype == "~":
+                    genotype_line = True
+                    continue
+                else:
+                    ind = line[9:].strip()  # so we skip "genotype:"
+            if genotype_line and line.strip() == "~":
+                genotype_line = False
+            if genotype_line:
+                ind += line
+
+            # end of individual
+            if line == "\n":
+                individuals.append(ind)
+
+    return pcls(ind_init([ind]) for ind in individuals)
+
+
+def prepareToolbox(frams_lib, tournament_size, genetic_format, initial_genotype, load_file):
     creator.create("FitnessMax", base.Fitness, weights=[1.0] * OPTIMIZATION_CRITERIA_NUMBER)
     creator.create("Individual", list, fitness=creator.FitnessMax)
 
@@ -147,7 +182,11 @@ def prepareToolbox(frams_lib, tournament_size, genetic_format, initial_genotype)
     toolbox.register("attr_simplest_genotype", frams_getsimplest, frams_lib, genetic_format, initial_genotype)
 
     toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_simplest_genotype, 1)
-    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    if not load_file:
+        toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    else:
+        toolbox.register("population_guess", init_population, list, creator.Individual, load_file)
+
     toolbox.register("evaluate", frams_evaluate, frams_lib)
     toolbox.register("mate", frams_crossover, frams_lib)
     toolbox.register("mutate", frams_mutate, frams_lib)
@@ -212,8 +251,13 @@ def parseArguments():
 
     parser.add_argument("-deap_logfile", type=str, default=None, help="If set, DEAP will log to this file.")
 
-    parser.add_argument("-genotypes_save_dir", type=str, default=None,
-                        help="Directory to save genotypes in each iteration.")
+    parser.add_argument(
+        "-genotypes_save_dir", type=str, default=None, help="Directory to save genotypes in each iteration."
+    )
+
+    parser.add_argument(
+        "-load_file", type=str, default="", help="If set, load the population from the given file."
+    )
 
     return parser.parse_args()
 
@@ -257,7 +301,7 @@ def evolution(population, toolbox, mutpb, ngen, stats=None, halloffame=None, ver
               evolution
     """
     logbook = tools.Logbook()
-    logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
+    logbook.header = ["gen", "nevals"] + (stats.fields if stats else [])
 
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in population if not ind.fitness.valid]
@@ -301,7 +345,7 @@ def evolution(population, toolbox, mutpb, ngen, stats=None, halloffame=None, ver
         # Mutate
         for i in range(len(offspring)):
             if random.random() < mutpb:
-                offspring[i], = toolbox.mutate(offspring[i])
+                (offspring[i],) = toolbox.mutate(offspring[i])
                 del offspring[i].fitness.values
 
         # Evaluate the individuals with an invalid fitness
@@ -338,8 +382,12 @@ def main():
         parsed_args.tournament,
         "1" if parsed_args.genformat is None else parsed_args.genformat,
         parsed_args.initialgenotype,
+        parsed_args.load_file
     )
-    pop = toolbox.population(n=parsed_args.popsize)
+    if parsed_args.load_file:
+        pop = toolbox.population_guess()
+    else:
+        pop = toolbox.population(n=parsed_args.popsize)
     hof = tools.HallOfFame(parsed_args.hof_size)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     filter_feasible_for_function = lambda function, fitness_criteria: function(

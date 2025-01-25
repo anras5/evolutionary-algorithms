@@ -317,14 +317,13 @@ def evolution(population, toolbox, mutpb, ngen, stats=None, halloffame=None, ver
     if verbose:
         print(logbook.stream)
 
+    population = toolbox.select(population, len(population), save=False)
+
     # Begin the generational process
     for gen in range(1, ngen + 1):
-        # Select the next generation individuals
-        parents = toolbox.select(population, len(population), save=False)
-
         # Apply crossover and mutation on the offspring
         # Crossover
-        parents_indexed = [(i, parent) for i, parent in enumerate(parents)]
+        parents_indexed = [(i, parent) for i, parent in enumerate(population)]
         offspring = []
         # Choose pairs of parents
         pairs_of_parents = []
@@ -358,7 +357,7 @@ def evolution(population, toolbox, mutpb, ngen, stats=None, halloffame=None, ver
         if halloffame is not None:
             halloffame.update(offspring)
 
-        intermediate_population = parents + offspring
+        intermediate_population = population + offspring
         population = toolbox.select(intermediate_population, len(population), save=True, iteration=gen)
 
         # Append the current generation statistics to the logbook

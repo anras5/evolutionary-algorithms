@@ -1,0 +1,11 @@
+# Zadanie 4
+
+popsize: 60, generations: 130, tournament: 5 (domyślnie), odchylenie standardowe na wykresie 2 przedstawione jako 0.3*std dla lepszej widoczności
+
+Moje pierwotne przypuszczenia nie okazały się do końca słuszne. Miałem nadzieję, że niewielkie (5%, 10%) zwiększenie siły mutacji poprawi jakość rozwiązań, a dopiero przy dużych wartościach (50%) będzie możliwe zaobserwowanie pogorszenie się rozwiązań. Okazało się jednak, że takie pogorszenie zaobserwować można już dla 10% (rozwiązania gorsze o 0.1 fitness), a brak poprawy dla 5% (rozwiązania dla 5% lepsze od tych dla 0% do 60 pokolenia, w pokoleniach 60-100 podobne wartości fitness, a od 100 do 130 pokolenia rozwiązania dla 5% gorsze niż dla 0%).
+
+Powodem takiego działania dla dużych wartości siły mutacji może być zbyt duża eksploracja algorytmu, a za mała eksploatacja. Oznacza to, że nie skupiamy się na ulepszaniu rozwiązań, które już istnieją, a "skaczemy" losowo próbując bardzo różniących się możliwości, od tych o których już wiemy, że są dobre. Jest to powiązane z tym, że w optymalizacji nie powinniśmy oddalać się zbyt bardzo (w tym przykładzie określone to jest poprzez siłę mutacji) od rozwiązań, które już są dobre, a raczej skupić się na ich stopniowym poprawianiu małymi krokami. 
+
+Na początku działania algorytmu można byłoby zastosować większe wartości siły mutacji, a w późniejszych iteracjach coraz mniejsze. Spowodowałoby to większą eksplorację na początku, a później lepszą eksploatację. Kluczowe byłoby jednak dobranie odpowiednich wartości siły mutacji (być może warto byłoby sprawdzić przedział od 1% do 10%). Widać to na wykresie numer 2. Do mniej więcej 60 pokolenia siła mutacji 0.05 wyprzedza siłę równą 0 jeżeli chodzi o wartość fitness. Nie są to duże wartości, ale najbardziej widoczne są w okolicach 40 pokolenia, gdzie ta różnica wynosi 0.08 jednostki fitness (na podstawie średniej). Być może warto byłoby w takim razie w okolicach 50-60 pokolenia podmienić wartość siły mutacji na niższą niż 0.05. Działanie takie byłoby w pewnym sensie podobne do Simulated Annealing.
+
+Czasy wykonania dla ewolucji z większymi wartościami siły mutacji są dłuższe, co jest zrozumiałe, ponieważ wykonane musi być więcej operacji podczas przeprowadzania mutacji.

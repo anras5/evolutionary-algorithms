@@ -11,7 +11,8 @@ wheels/
 
 .ipynb_checkpoints/
 Framsticks*/
-framspy
 .DS_STORE
 .idea/
 *.mp4
+/framspy/
+.env

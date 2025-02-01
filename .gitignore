@@ -14,5 +14,5 @@ Framsticks*/
 .DS_STORE
 .idea/
 *.mp4
-/framspy/
+framspy/
 .env

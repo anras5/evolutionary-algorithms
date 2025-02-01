@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DIR_WITH_FRAMS_LIBRARY=/Users/filipmarciniak/studia/st2sem2/amib/Framsticks51
+source ../.env
 cp -f FramsticksEvolution.py ../framspy/FramsticksEvolution.py
 cd ../framspy || exit
 
